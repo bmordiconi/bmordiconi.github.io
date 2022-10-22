@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="423.092" height="65.724" viewBox="0 0 423.092 65.724">
+  <defs>
+    <filter id="Pfad_72" x="0" y="13.862" width="54.91" height="51.233" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_73" x="39.354" y="14.667" width="59.801" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-2"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_74" x="83.993" y="14.667" width="53.485" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-3"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_75" x="123.238" y="14.667" width="54.711" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-4"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-4"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_76" x="161.314" y="14.667" width="55.507" height="50.428" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-5"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-5"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_77" x="203.421" y="14.667" width="57.07" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-6"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-6"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_78" x="246.663" y="14.667" width="26.526" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-7"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-7"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_79" x="258.576" y="14.667" width="59.801" height="49.578" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-8"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-8"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_81" x="340.458" y="0" width="45.31" height="23.698" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-9"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-9"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_82" x="334.633" y="22.128" width="83.887" height="43.596" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-10"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-10"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_83" x="304.582" y="0" width="33.306" height="35.945" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-11"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-11"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_85" x="362.11" y="41.386" width="60.983" height="24.333" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-12"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-12"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="Pfad_86" x="315.534" y="0.001" width="92.296" height="65.717" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur-13"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-13"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Gruppe_33" data-name="Gruppe 33" transform="translate(9 6)">
+    <g id="Gruppe_33-2" data-name="Gruppe 33" transform="translate(0 13.862)">
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_72)">
+        <path id="Pfad_72-2" data-name="Pfad 72" d="M33.577,53.552q-1.677.552-3.47.954a32.846,32.846,0,0,1-3.781.609,41.236,41.236,0,0,1-4.263.207,35.9,35.9,0,0,1-8.883-1.034,20.836,20.836,0,0,1-6.987-3.114A14.616,14.616,0,0,1,1.632,45.98,15.455,15.455,0,0,1,0,38.706a15.455,15.455,0,0,1,1.632-7.274,14.616,14.616,0,0,1,4.562-5.194,20.835,20.835,0,0,1,6.987-3.114,35.9,35.9,0,0,1,8.883-1.035,41.416,41.416,0,0,1,4.263.207,32.846,32.846,0,0,1,3.781.609q1.792.4,3.47.954,1.492.49,2.966,1.09a.591.591,0,0,1,.367.547v6.3a.586.586,0,0,1-.86.517q-.918-.48-1.9-.955A24.721,24.721,0,0,0,30.957,30.1a27.731,27.731,0,0,0-3.838-.919,28.262,28.262,0,0,0-4.712-.356,22.808,22.808,0,0,0-6.677.827,11.685,11.685,0,0,0-4.239,2.207,7.58,7.58,0,0,0-2.23,3.16,10.767,10.767,0,0,0-.644,3.689A11.35,11.35,0,0,0,8.894,41.2a7.984,7.984,0,0,0,.919,2.321,8.379,8.379,0,0,0,1.678,2.011,9.532,9.532,0,0,0,2.574,1.586,16.658,16.658,0,0,0,3.6,1.046,26.4,26.4,0,0,0,4.746.38,30.058,30.058,0,0,0,4.712-.334,26.64,26.64,0,0,0,3.838-.884,23.692,23.692,0,0,0,3.195-1.253q.977-.474,1.891-.962a.586.586,0,0,1,.867.513v6.293a.592.592,0,0,1-.367.547q-1.473.6-2.966,1.09" transform="translate(9 -2.23)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_73)">
+        <path id="Pfad_73-2" data-name="Pfad 73" d="M92.412,48.974h-17.6L72,54.624a.585.585,0,0,1-.524.325H63.294a.585.585,0,0,1-.518-.857L78.687,23.686a.585.585,0,0,1,.519-.314h8.806a.584.584,0,0,1,.518.314l15.911,30.407a.585.585,0,0,1-.519.857H95.739a.586.586,0,0,1-.525-.325ZM77.863,42.815H89.4L83.655,31.186Z" transform="translate(-14.35 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_74)">
+        <path id="Pfad_74-2" data-name="Pfad 74" d="M169.323,34.15a13.221,13.221,0,0,1-.689,4.356,8.425,8.425,0,0,1-2.218,3.424,10.488,10.488,0,0,1-3.965,2.24,19.034,19.034,0,0,1-5.929.8H142.364v9.389a.585.585,0,0,1-.585.586h-7.356a.586.586,0,0,1-.586-.586V23.957a.586.586,0,0,1,.586-.586h22.1a19.3,19.3,0,0,1,5.929.793,10.39,10.39,0,0,1,3.965,2.229,8.437,8.437,0,0,1,2.218,3.413,13.122,13.122,0,0,1,.689,4.343m-8.618.139a5.205,5.205,0,0,0-.31-1.9,2.828,2.828,0,0,0-1.023-1.3,4.961,4.961,0,0,0-1.861-.747,14.046,14.046,0,0,0-2.827-.242H142.364v8.136h12.319a17.28,17.28,0,0,0,2.827-.2,4.813,4.813,0,0,0,1.861-.666,2.657,2.657,0,0,0,1.023-1.229,4.933,4.933,0,0,0,.31-1.861" transform="translate(-40.85 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_75)">
+        <path id="Pfad_75-2" data-name="Pfad 75" d="M204.314,54.949h-7.356a.586.586,0,0,1-.586-.586V23.957a.586.586,0,0,1,.586-.586h20.788a20.789,20.789,0,0,1,5.849.713,10.344,10.344,0,0,1,3.907,2.023,7.591,7.591,0,0,1,2.183,3.16,11.919,11.919,0,0,1,.678,4.125,9.89,9.89,0,0,1-.563,3.494,8.093,8.093,0,0,1-1.517,2.562,9.075,9.075,0,0,1-2.218,1.8A15.069,15.069,0,0,1,223.4,42.47l9.547,11.52a.585.585,0,0,1-.451.959h-8.453a.584.584,0,0,1-.452-.214L214.207,43.32H204.9V54.364a.585.585,0,0,1-.586.586m17.431-21.6a4.469,4.469,0,0,0-.241-1.563,2.148,2.148,0,0,0-.839-1.046,4.223,4.223,0,0,0-1.6-.586,14.141,14.141,0,0,0-2.493-.184H204.9v6.756h11.675a14.081,14.081,0,0,0,2.493-.184,4.2,4.2,0,0,0,1.6-.586,2.148,2.148,0,0,0,.839-1.046,4.469,4.469,0,0,0,.241-1.563" transform="translate(-64.14 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_76)">
+        <path id="Pfad_76-2" data-name="Pfad 76" d="M293.38,48.767a10.739,10.739,0,0,1-3.517,3.654,19.152,19.152,0,0,1-5.848,2.471,32.874,32.874,0,0,1-8.194.908,33.147,33.147,0,0,1-8.216-.908,19.143,19.143,0,0,1-5.873-2.471,10.741,10.741,0,0,1-3.516-3.654,8.977,8.977,0,0,1-1.172-4.458V23.958a.585.585,0,0,1,.585-.586h7.333a.585.585,0,0,1,.585.586V41.252a10.9,10.9,0,0,0,.4,3,5.388,5.388,0,0,0,1.517,2.47,7.821,7.821,0,0,0,3.125,1.677,18.144,18.144,0,0,0,5.228.621,17.93,17.93,0,0,0,5.194-.621,7.827,7.827,0,0,0,3.114-1.677,5.312,5.312,0,0,0,1.5-2.47,11.22,11.22,0,0,0,.391-3V23.958a.586.586,0,0,1,.586-.586h7.355a.585.585,0,0,1,.586.586V44.309a8.976,8.976,0,0,1-1.172,4.458" transform="translate(-86.73 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_77)">
+        <path id="Pfad_77-2" data-name="Pfad 77" d="M353.8,54.774l-21.132-21.52v21.11a.585.585,0,0,1-.585.586h-7.356a.585.585,0,0,1-.586-.586V23.958a.586.586,0,0,1,.586-.586h8.431a.585.585,0,0,1,.418.176l21.155,21.612v-21.2a.586.586,0,0,1,.586-.586h7.309a.586.586,0,0,1,.586.586V54.364a.585.585,0,0,1-.586.586h-8.408a.584.584,0,0,1-.418-.175" transform="translate(-111.72 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_78)">
+        <path id="Pfad_78-2" data-name="Pfad 78" d="M393.044,54.364V23.957a.586.586,0,0,1,.585-.586h7.355a.586.586,0,0,1,.586.586V54.364a.586.586,0,0,1-.586.586h-7.355a.586.586,0,0,1-.585-.586" transform="translate(-137.38 -2.7)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -9, -19.86)" filter="url(#Pfad_79)">
+        <path id="Pfad_79-2" data-name="Pfad 79" d="M441.731,48.974h-17.6l-2.8,5.651a.585.585,0,0,1-.524.325h-8.185a.585.585,0,0,1-.518-.857l15.911-30.407a.585.585,0,0,1,.519-.314h8.806a.584.584,0,0,1,.518.314l15.911,30.407a.585.585,0,0,1-.519.857h-8.184a.586.586,0,0,1-.525-.325Zm-14.548-6.159H438.72l-5.745-11.629Z" transform="translate(-144.45 -2.7)" fill="#f2f2f2"/>
+      </g>
+    </g>
+    <g id="Gruppe_34" data-name="Gruppe 34" transform="translate(304.582)">
+      <g transform="matrix(1, 0, 0, 1, -313.58, -6)" filter="url(#Pfad_81)">
+        <path id="Pfad_81-2" data-name="Pfad 81" d="M568.354,2.237a12.252,12.252,0,0,1-9.375,3.455c-.613,0-1.249-.028-1.891-.082a28.92,28.92,0,0,1-10.728-3.185A30.007,30.007,0,0,1,542.5,0h27.31a8.855,8.855,0,0,1-1.457,2.237" transform="translate(-193.04 6)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -313.58, -6)" filter="url(#Pfad_82)">
+        <path id="Pfad_82-2" data-name="Pfad 82" d="M534.523,38.632a1.91,1.91,0,0,1,.818-.159c1.706,0,4.61,1.434,7.684,2.953h.006a75.291,75.291,0,0,0,7.175,3.228,22.382,22.382,0,0,0,7.682,1.583,12.967,12.967,0,0,0,4.19-.667c4.023-1.376,5.688-4.392,7.023-6.815a12.827,12.827,0,0,1,1.758-2.689,2.459,2.459,0,0,1,1.919-.808h.147c1.345.035,2.464.673,4.487,1.895,2.259,1.367,5.074,3.068,8.484,3.068.17,0,.337,0,.5-.012a8.479,8.479,0,0,0,6.384-3.317l.7,1.362.156.3,5.474,10.662a22.981,22.981,0,0,0-7.429-1.507,11.063,11.063,0,0,0-1.923.159,9.62,9.62,0,0,0-5.237,2.651h0a7.88,7.88,0,0,1-2.97,1.843,8.6,8.6,0,0,1-2.815.464,21.176,21.176,0,0,1-5.246-.935l-.045-.012a29.243,29.243,0,0,0-7.484-1.229c-.5,0-1,.022-1.487.065-5.674.492-10.177,3.9-13.389,10.136H537.142v.005c-5.734-16.5-3.836-21.635-2.619-22.223" transform="translate(-189.59 -7.13)" fill="#f2f2f2"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -313.58, -6)" filter="url(#Pfad_83)">
+        <path id="Pfad_83-2" data-name="Pfad 83" d="M496.865,0a14.75,14.75,0,0,1,3.5,6.015,9.087,9.087,0,0,1-1.043,7.06,10.42,10.42,0,0,1-2.592,2.866,12.983,12.983,0,0,1-3.858,2c-1.919-3.737-3.836-7.47-5.567-10.842l-.678-1.32L485.614,3.8A2.651,2.651,0,0,1,488,0Z" transform="translate(-171.75 6)" fill="#f2f2f2"/>
+      </g>
+    </g>
+    <g id="Gruppe_35" data-name="Gruppe 35" transform="translate(315.534 0.001)">
+      <g transform="matrix(1, 0, 0, 1, -324.53, -6)" filter="url(#Pfad_85)">
+        <path id="Pfad_85-2" data-name="Pfad 85" d="M584.415,68.9a22.14,22.14,0,0,1,5.585.983h.009l.021,0a28.293,28.293,0,0,0,7.172,1.193,14.4,14.4,0,0,0,4.721-.772,12.3,12.3,0,0,0,4.548-2.744,5.019,5.019,0,0,1,2.847-1.544,5.161,5.161,0,0,1,.885-.07c2.925,0,7.238,1.971,9.548,3.146a2.221,2.221,0,0,1-2,3.187H577a10,10,0,0,1,6.5-3.343c.3-.026.606-.04.911-.04" transform="translate(-205.89 -18.56)" fill="#b1b1b1"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -324.53, -6)" filter="url(#Pfad_86)">
+        <path id="Pfad_86-2" data-name="Pfad 86" d="M512.159,18.06a12.991,12.991,0,0,0,2.04-5.254,15.8,15.8,0,0,0-.4-6.386A21.1,21.1,0,0,0,510.834,0h8.123a42.246,42.246,0,0,0,10.819,8.2,38.078,38.078,0,0,0,14.1,4.21c.837.072,1.676.108,2.49.108,5.392.107,10.058-1.662,13.189-5A14.277,14.277,0,0,0,562.925.37l1.693.144a11.413,11.413,0,0,1,7.809,5.7c.115.21,2.419,4.692,4.656,9.043a10.9,10.9,0,0,1-1.992,3.649,3.636,3.636,0,0,1-2.533,1.359c-.048,0-.1,0-.146,0-1.094,0-2.172-.619-3.982-1.711-2.3-1.388-5.154-3.116-8.758-3.248-.138-.008-.27-.008-.395-.008-4.859,0-6.642,3.24-8.075,5.842-1.125,2.043-2.188,3.971-4.534,4.772a7.041,7.041,0,0,1-2.286.361c-3.278,0-7.083-1.881-11.112-3.874h0c-3.888-1.92-7.909-3.907-11.427-3.907a7.392,7.392,0,0,0-3.283.709c-2.6,1.258-3.875,4.37-3.8,9.258.079,4.871,1.5,11.348,4.234,19.251h-.151a11.558,11.558,0,0,1-7.007-5.523c-.167-.306-4.887-9.493-9.051-17.6a19.384,19.384,0,0,0,5.4-2.558,14.878,14.878,0,0,0,3.973-3.978" transform="translate(-178.25 6)" fill="#b1b1b1"/>
+      </g>
+    </g>
+  </g>
+</svg>
