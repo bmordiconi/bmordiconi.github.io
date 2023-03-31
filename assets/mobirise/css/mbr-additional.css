@@ -582,9 +582,6 @@ a:hover {
   color: #ffffff;
 }
 /* Scroll to top button*/
-.scrollToTop_wraper {
-  display: none;
-}
 .form-control {
   font-family: 'Poppins-Regular';
   font-size: 1.1rem;
@@ -1198,7 +1195,7 @@ a {
 .cid-tzQdGSq0TN {
   padding-top: 10rem;
   padding-bottom: 10rem;
-  background-image: url("../../../assets/images/control-01-richserra-crop-u6987-900x625.webp");
+  background-image: url("../../../assets/images/control-01-richserra-crop-u6987-900x625.jpeg");
 }
 .cid-tzQdGSq0TN .mbr-fallback-image.disabled {
   display: none;
@@ -1286,7 +1283,7 @@ a {
 .cid-tA71CMM6hl {
   padding-top: 10rem;
   padding-bottom: 10rem;
-  background-image: url("../../../assets/images/trenner-900x553.webp");
+  background-image: url("../../../assets/images/trenner-900x553.png");
 }
 .cid-tA71CMM6hl .mbr-fallback-image.disabled {
   display: none;
@@ -1489,7 +1486,7 @@ a {
 .cid-tzQiqaEBO6 {
   padding-top: 10rem;
   padding-bottom: 10rem;
-  background-image: url("../../../assets/images/261019-zugabe-04-crop-u8047-2-900x625.webp");
+  background-image: url("../../../assets/images/261019-zugabe-04-crop-u8047-2-900x625.jpeg");
 }
 .cid-tzQiqaEBO6 .mbr-fallback-image.disabled {
   display: none;
@@ -2700,7 +2697,7 @@ a {
 .cid-tA7qVZryMN {
   padding-top: 10rem;
   padding-bottom: 10rem;
-  background-image: url("../../../assets/images/261019-bandfoto-crop-u7447-8-900x625.webp");
+  background-image: url("../../../assets/images/261019-bandfoto-crop-u7447-8-900x625.jpeg");
 }
 .cid-tA7qVZryMN .mbr-fallback-image.disabled {
   display: none;
