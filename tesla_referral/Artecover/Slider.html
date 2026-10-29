@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Teller-Slider</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f2f2f2;
+    --ink: #111111;
+    --muted: #6d6d6a;
+    --rule: rgba(17, 17, 17, 0.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #f2f2f2; /* Bühne bleibt hell, die Teller sind auf Hell abgestimmt */
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+  }
+  .stage:focus-visible { box-shadow: inset 0 0 0 2px var(--ink); }
+  .canvas-host { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+  .canvas-host canvas { display: block; width: 100%; height: 100%; }
+
+  .logo {
+    position: absolute;
+    z-index: 2;
+    top: clamp(20px, 3.2vw, 44px);
+    left: clamp(20px, 3.2vw, 44px);
+    width: clamp(120px, 13vw, 200px);
+    pointer-events: none;
+  }
+  .logo svg { display: block; width: 100%; height: auto; fill: var(--ink); }
+
+  .nav {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: clamp(20px, 3.2vw, 44px);
+    transform: translateX(-50%);
+    display: flex;
+    gap: clamp(28px, 5vw, 64px);
+  }
+  .nav button {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 12px 10px;
+    color: var(--ink);
+    cursor: pointer;
+    line-height: 0;
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  #prev:hover { transform: translateX(-4px); }
+  #next:hover { transform: translateX(4px); }
+  .nav button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .nav button[disabled] { opacity: 0.25; cursor: default; transform: none; }
+
+  .fallback {
+    position: absolute; inset: 0; display: none; place-items: center;
+    padding: 2rem; text-align: center; z-index: 4;
+  }
+  .no-webgl .fallback { display: grid; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+<main class="stage" id="stage" tabindex="0" aria-label="Teller-Galerie. Mit den Pfeilen oder Pfeiltasten wechseln, mit der Maus ziehen.">
+  <div class="canvas-host" id="canvasHost"></div>
+
+  <div class="logo"><svg role="img" aria-label="Artecover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 503 232.8"><g> <g> <path d="M241.8,78.1c-0.9-0.6-1.7-1.1-2.3-2.2c-0.5-0.9-0.7-1.2-2.8-1.4c-2.7-0.3-8.5-1.9-10.8-2.6c-1.5-0.4-2.9-0.7-3.9-0.7 c-0.4,0-0.8,0-1.1,0.1c-0.8,0.2-2,0.5-3.3,0.5c-0.7,0-1.4-0.1-2-0.3c-0.2-0.1-1.6-0.2-3.2-0.2c0,0-0.1,0-0.1,0 c6,15.3,23.5,23.7,23.5,23.7l-17.2,32.6h4l16.4-31.3c4.8,1.5,10.3,1.9,13.9,1.8L239,127.6h3.8l13.7-29.7 c-5.2-7.8-12.1-17.7-13.2-18.7C242.8,78.8,242.3,78.4,241.8,78.1z"></path> <path d="M300.4,92.5c-3.8-1.8,1.2-2.1,1.2-2.1l-12.9-9.1c0,0,0.7-1.9-1.9-4.7c-2.3-2.5-7.8-9.2-11.7-13.7 c-5.3,5.8-11.9,9.3-14.6,10.5c5.7,7.8,12.4,16.3,16.7,21c2.1-0.3,4.1-0.4,5.5,0.1c1.7,0.6,3.7,1.1,5.5,0.7 c1.8-0.4,4.7,0.6,4.7,0.6c16.4,3.3,23.8,11.4,23.8,11.4l2.3-6.4C319,100.8,304.3,94.2,300.4,92.5z"></path> <path d="M218,56.2c1.7-2.8,7.3-10.4,10.6-13.8c3.1-3.1,6.2-6.9,10-11.6c2-2.5,4.2-5,6.2-6.9c-0.5-1.4-1.3-3.5-3.1-7.1 c-4-8-14.3-10.6-19.9-10.5C216.1,6.5,211,9.6,211,9.6s-3.4,0.7-5.9,0.4c-2.5-0.2-7.4-0.7-10.9,0.8l13.1,8.7c0,0-0.2,4.6,1.3,7.7 c1.5,3.1,3.2,8.5,1.1,15.5c-1.9,6.4-2.9,10-0.2,19.6C213.5,60.3,216.7,58.3,218,56.2z"></path> <path d="M256.4,72.2l1.6-0.6c0.4-0.2,4.2-1.8,8.4-4.7c2.1-1.5,4.7-3.5,6.9-6.1c-3.1-3.6-6.7-8.5-11-14.6 c-3.9-5.7-10.2-10.9-12.3-12.8c-2.1-1.8-2.7-2.7-4-5.5c-0.2-0.4-0.3-0.7-0.5-1.1c-1.6,1.6-3.3,3.6-5,5.7c-3.8,4.8-7,8.6-10.1,11.8 c-3.1,3.1-8.5,10.6-10.2,13.3c-1.6,2.6-5.5,5-10.1,7.2c0.4,1.2,0.8,2.4,1.2,3.8c0.4,0,0.8,0,1.1,0c1.8,0,3.3,0.2,3.9,0.3 c0.4,0.1,0.8,0.2,1.2,0.2c1,0,1.9-0.2,2.6-0.4c0.5-0.2,1.1-0.2,1.8-0.2c1.7,0,3.5,0.4,4.7,0.8c1.3,0.4,7.7,2.3,10.3,2.5 c3.1,0.3,3.9,1.1,4.9,2.8c0.3,0.5,0.7,0.8,1.4,1.3c0.5,0.3,1.2,0.8,1.9,1.4c1,0.9,8.8,11.9,14.3,20.2c4.3-0.6,11.4-1.9,14.8-2.5 c-6.2-7-14.7-18.4-16.8-21.4L256.4,72.2z"></path> <path d="M249.8,22.9c2-1.5,2.6-2.3,3.9-4.7c0.4-0.8,0.8-1.3,1.2-1.9l0.1-0.1c0.7-1.1,1.9-2.6,4.2-6.6c3.1-5.4,10.4-6.9,14.2-6.9 c0.4,0,0.9,0,1.3,0.1c4.1,0.4,7.9,2.9,7.9,2.9l0.4,0.2l0.1,0c1.1,0.3,3.3,0.7,5.1,0.7c0.5,0,1.1,0,1.8,0c1.4,0,2.6,0.1,3.7,0.3 l-9.1,5.3l0,0.8c0,0-0.1,3.5-1.3,5.6c-2.3,4.1-2.9,8.8-1.8,13.5c1.4,6.1,2.1,8.9-3.2,21.5c-1.2,2.8-2.9,5.3-4.8,7.4 c0.1,0.2,0.3,0.3,0.4,0.5c0.4,0.5,0.9,1,1.4,1.6c2.2-2.4,4.2-5.2,5.5-8.4c5.4-12.9,5-16.2,3.3-23.2c-1-4.1-0.4-8.1,1.5-11.6 c1.1-1.9,1.4-4.6,1.6-6l12.6-7.3l-2.2-1.1c-1.8-0.9-4.3-1.4-7.6-1.4c-0.7,0-1.4,0-1.9,0c-1.5,0.1-3.6-0.4-4.2-0.6 c-1.1-0.7-4.8-2.9-9-3.2c-0.5,0-1-0.1-1.6-0.1c-5.4,0-12.9,2.2-16.4,8.2c-2.1,3.7-3.2,5.2-4,6.4l-0.1,0.1 c-0.5,0.7-0.9,1.3-1.4,2.2c-1.1,2-1.5,2.5-3.2,3.8c-0.9,0.6-2.1,1.8-3.5,3.2c0.4,1.2,0.6,2,0.9,2.9 C247.4,25,248.9,23.6,249.8,22.9z"></path> <path d="M211.3,68.6c-1.1,0-2.3,0.2-3.4,0.5c-8.7,2.8-13.4,5.9-15.6,7.6l-3.6-4.2c4.2-1.2,13.7-4,21.3-7.6 c-0.3-0.9-0.5-1.8-0.8-2.6c-7.7,3.7-18.3,6.9-23.3,8.2L184,71l8.1,9.6l1-1c0.5-0.4,5-4.4,15.6-7.8c0.9-0.3,2.1-0.4,3.6-0.4 c-0.1-0.3-0.3-0.7-0.4-1.1C211.7,69.7,211.5,69.2,211.3,68.6z"></path> </g> <g> <path d="M25.4,187.2l-0.6-5.1h-0.2c-2.2,3.2-6.6,6-12.3,6c-8.1,0-12.3-5.7-12.3-11.5c0-9.7,8.6-15,24.2-14.9v-0.8 c0-3.3-0.9-9.3-9.1-9.3c-3.7,0-7.6,1.2-10.5,3l-1.7-4.8c3.3-2.2,8.1-3.6,13.2-3.6c12.3,0,15.3,8.4,15.3,16.4v15 c0,3.5,0.2,6.9,0.7,9.6H25.4z M24.3,166.7c-8-0.2-17,1.2-17,9c0,4.7,3.2,7,6.9,7c5.2,0,8.5-3.3,9.7-6.7c0.2-0.7,0.4-1.6,0.4-2.3 V166.7z"></path> <path d="M65.7,159.6c0-4.7-0.1-8.8-0.3-12.5h6.4l0.2,7.9h0.3c1.8-5.4,6.2-8.8,11.1-8.8c0.8,0,1.4,0.1,2.1,0.2v6.9 c-0.7-0.2-1.5-0.2-2.5-0.2c-5.1,0-8.8,3.9-9.8,9.4c-0.2,1-0.3,2.2-0.3,3.4v21.4h-7.2V159.6z"></path> <path d="M126.1,135.5V147h10.5v5.6h-10.5v21.7c0,5,1.4,7.8,5.5,7.8c1.9,0,3.3-0.2,4.2-0.5l0.3,5.5c-1.4,0.6-3.7,1-6.5,1 c-3.4,0-6.1-1.1-7.9-3.1c-2.1-2.2-2.8-5.7-2.8-10.5v-21.9h-6.2V147h6.2v-9.6L126.1,135.5z"></path> <path d="M170.8,168.4c0.2,9.9,6.5,13.9,13.8,13.9c5.2,0,8.4-0.9,11.1-2.1l1.2,5.2c-2.6,1.2-7,2.5-13.4,2.5 c-12.4,0-19.8-8.1-19.8-20.2c0-12.1,7.1-21.7,18.8-21.7c13.1,0,16.6,11.5,16.6,18.9c0,1.5-0.2,2.7-0.2,3.4H170.8z M192.2,163.2 c0.1-4.6-1.9-11.9-10.1-11.9c-7.4,0-10.6,6.8-11.2,11.9H192.2z"></path> <path d="M259.5,185.7c-1.9,1-6.1,2.3-11.5,2.3c-12.1,0-20-8.2-20-20.5c0-12.4,8.5-21.3,21.6-21.3c4.3,0,8.1,1.1,10.1,2.1l-1.7,5.6 c-1.7-1-4.5-1.9-8.5-1.9c-9.2,0-14.2,6.8-14.2,15.2c0,9.3,6,15,13.9,15c4.1,0,6.9-1.1,9-2L259.5,185.7z"></path> <path d="M326.4,166.8c0,14.9-10.3,21.3-20,21.3c-10.9,0-19.3-8-19.3-20.7c0-13.4,8.8-21.3,19.9-21.3 C318.5,146.1,326.4,154.5,326.4,166.8z M294.5,167.2c0,8.8,5.1,15.4,12.2,15.4c7,0,12.2-6.6,12.2-15.6c0-6.8-3.4-15.4-12-15.4 C298.2,151.6,294.5,159.6,294.5,167.2z"></path> <path d="M360.3,147l7.9,22.6c1.3,3.7,2.4,7,3.2,10.3h0.2c0.9-3.3,2.1-6.6,3.4-10.3l7.8-22.6h7.6l-15.8,40.2h-7L352.5,147H360.3z"></path> <path d="M423.1,168.4c0.2,9.9,6.5,13.9,13.8,13.9c5.2,0,8.4-0.9,11.1-2.1l1.2,5.2c-2.6,1.2-7,2.5-13.4,2.5 c-12.4,0-19.8-8.1-19.8-20.2c0-12.1,7.1-21.7,18.8-21.7c13.1,0,16.6,11.5,16.6,18.9c0,1.5-0.2,2.7-0.2,3.4H423.1z M444.5,163.2 c0.1-4.6-1.9-11.9-10.1-11.9c-7.4,0-10.6,6.8-11.2,11.9H444.5z"></path> <path d="M483.1,159.6c0-4.7-0.1-8.8-0.3-12.5h6.4l0.2,7.9h0.3c1.8-5.4,6.2-8.8,11.1-8.8c0.8,0,1.4,0.1,2.1,0.2v6.9 c-0.7-0.2-1.5-0.2-2.5-0.2c-5.1,0-8.8,3.9-9.8,9.4c-0.2,1-0.3,2.2-0.3,3.4v21.4h-7.2V159.6z"></path> </g> <g> <path d="M158.5,208.9v15.2c0,1.1,0,2.4,0.1,3.2h-2.1l-0.1-2.2h-0.1c-0.7,1.4-2.2,2.5-4.3,2.5c-3,0-5.4-2.6-5.4-6.4 c0-4.2,2.6-6.8,5.6-6.8c1.9,0,3.2,0.9,3.8,1.9h0.1v-7.5H158.5z M156.2,219.9c0-0.3,0-0.7-0.1-1c-0.3-1.5-1.6-2.7-3.3-2.7 c-2.4,0-3.8,2.1-3.8,4.9c0,2.5,1.2,4.7,3.7,4.7c1.5,0,2.9-1,3.4-2.7c0.1-0.3,0.1-0.6,0.1-1V219.9z"></path> <path d="M167.7,211.3c0,0.8-0.5,1.4-1.5,1.4c-0.8,0-1.4-0.6-1.4-1.4c0-0.8,0.6-1.4,1.4-1.4C167.2,209.8,167.7,210.4,167.7,211.3z M165.2,227.4v-12.6h2.3v12.6H165.2z"></path> <path d="M174.2,218.2c0-1.3,0-2.4-0.1-3.4h2l0.1,2.1h0.1c0.6-1.2,2.1-2.4,4.2-2.4c1.7,0,4.4,1,4.4,5.4v7.5h-2.3v-7.3 c0-2-0.8-3.7-2.9-3.7c-1.5,0-2.7,1.1-3.1,2.3c-0.1,0.3-0.2,0.7-0.2,1.1v7.6h-2.3V218.2z"></path> <path d="M194.1,211.3c0,0.8-0.5,1.4-1.5,1.4c-0.8,0-1.4-0.6-1.4-1.4c0-0.8,0.6-1.4,1.4-1.4C193.5,209.8,194.1,210.4,194.1,211.3z M191.5,227.4v-12.6h2.3v12.6H191.5z"></path> <path d="M200.5,218.2c0-1.3,0-2.4-0.1-3.4h2l0.1,2.1h0.1c0.6-1.2,2.1-2.4,4.2-2.4c1.7,0,4.4,1,4.4,5.4v7.5h-2.3v-7.3 c0-2-0.8-3.7-2.9-3.7c-1.5,0-2.7,1.1-3.1,2.3c-0.1,0.3-0.2,0.7-0.2,1.1v7.6h-2.3V218.2z"></path> <path d="M228.7,214.8c-0.1,0.9-0.1,1.9-0.1,3.5v7.3c0,2.9-0.6,4.7-1.8,5.7c-1.2,1.1-3,1.5-4.6,1.5c-1.5,0-3.2-0.4-4.2-1l0.6-1.7 c0.8,0.5,2.1,1,3.7,1c2.3,0,4.1-1.2,4.1-4.4v-1.4h-0.1c-0.7,1.2-2.1,2.1-4,2.1c-3.1,0-5.4-2.7-5.4-6.1c0-4.3,2.8-6.7,5.7-6.7 c2.2,0,3.4,1.1,3.9,2.2h0.1l0.1-1.9H228.7z M226.3,219.8c0-0.4,0-0.7-0.1-1c-0.4-1.3-1.5-2.4-3.2-2.4c-2.2,0-3.7,1.8-3.7,4.8 c0,2.5,1.2,4.5,3.7,4.5c1.4,0,2.7-0.9,3.2-2.3c0.1-0.4,0.2-0.8,0.2-1.2V219.8z"></path> <path d="M252.7,226.9c-0.6,0.3-1.9,0.7-3.6,0.7c-3.8,0-6.3-2.6-6.3-6.4c0-3.9,2.7-6.7,6.8-6.7c1.4,0,2.5,0.3,3.2,0.7l-0.5,1.8 c-0.5-0.3-1.4-0.6-2.7-0.6c-2.9,0-4.4,2.1-4.4,4.8c0,2.9,1.9,4.7,4.4,4.7c1.3,0,2.2-0.3,2.8-0.6L252.7,226.9z"></path> <path d="M259.4,221.5c0.1,3.1,2,4.4,4.3,4.4c1.6,0,2.6-0.3,3.5-0.7l0.4,1.6c-0.8,0.4-2.2,0.8-4.2,0.8c-3.9,0-6.2-2.5-6.2-6.3 c0-3.8,2.2-6.8,5.9-6.8c4.1,0,5.2,3.6,5.2,5.9c0,0.5-0.1,0.8-0.1,1.1H259.4z M266.1,219.9c0-1.5-0.6-3.7-3.2-3.7 c-2.3,0-3.3,2.1-3.5,3.7H266.1z"></path> <path d="M274.1,218.7c0-1.5,0-2.8-0.1-3.9h2l0.1,2.5h0.1c0.6-1.7,2-2.8,3.5-2.8c0.3,0,0.4,0,0.7,0.1v2.2c-0.2-0.1-0.5-0.1-0.8-0.1 c-1.6,0-2.8,1.2-3.1,2.9c-0.1,0.3-0.1,0.7-0.1,1.1v6.7h-2.3V218.7z"></path> <path d="M292.3,227.4l-0.2-1.6H292c-0.7,1-2.1,1.9-3.8,1.9c-2.5,0-3.8-1.8-3.8-3.6c0-3,2.7-4.7,7.6-4.7v-0.3c0-1-0.3-2.9-2.9-2.9 c-1.2,0-2.4,0.4-3.3,0.9l-0.5-1.5c1-0.7,2.5-1.1,4.1-1.1c3.8,0,4.8,2.6,4.8,5.1v4.7c0,1.1,0.1,2.2,0.2,3H292.3z M292,221 c-2.5-0.1-5.3,0.4-5.3,2.8c0,1.5,1,2.2,2.2,2.2c1.6,0,2.7-1,3-2.1c0.1-0.2,0.1-0.5,0.1-0.7V221z"></path> <path d="M300.8,218.2c0-1.3,0-2.4-0.1-3.4h2l0.1,2h0.1c0.7-1.2,1.9-2.3,4-2.3c1.7,0,3,1,3.6,2.5h0.1c0.4-0.7,0.9-1.2,1.4-1.6 c0.8-0.6,1.6-0.9,2.8-0.9c1.7,0,4.1,1.1,4.1,5.5v7.4h-2.2v-7.1c0-2.4-0.9-3.9-2.7-3.9c-1.3,0-2.3,1-2.7,2.1 c-0.1,0.3-0.2,0.7-0.2,1.1v7.8h-2.2v-7.5c0-2-0.9-3.5-2.6-3.5c-1.4,0-2.5,1.1-2.8,2.3c-0.1,0.3-0.2,0.7-0.2,1.1v7.6h-2.2V218.2z"></path> <path d="M327.9,211.3c0,0.8-0.5,1.4-1.5,1.4c-0.8,0-1.4-0.6-1.4-1.4c0-0.8,0.6-1.4,1.4-1.4C327.4,209.8,327.9,210.4,327.9,211.3z M325.4,227.4v-12.6h2.3v12.6H325.4z"></path> <path d="M343.3,226.9c-0.6,0.3-1.9,0.7-3.6,0.7c-3.8,0-6.3-2.6-6.3-6.4c0-3.9,2.7-6.7,6.8-6.7c1.4,0,2.5,0.3,3.2,0.7l-0.5,1.8 c-0.5-0.3-1.4-0.6-2.7-0.6c-2.9,0-4.4,2.1-4.4,4.8c0,2.9,1.9,4.7,4.4,4.7c1.3,0,2.2-0.3,2.8-0.6L343.3,226.9z"></path> <path d="M348.6,225c0.7,0.4,1.9,0.9,3,0.9c1.7,0,2.4-0.8,2.4-1.9c0-1.1-0.6-1.7-2.3-2.3c-2.3-0.8-3.3-2.1-3.3-3.6 c0-2,1.6-3.7,4.3-3.7c1.3,0,2.4,0.4,3.1,0.8l-0.6,1.7c-0.5-0.3-1.4-0.7-2.6-0.7c-1.4,0-2.1,0.8-2.1,1.7c0,1,0.8,1.5,2.4,2.1 c2.2,0.8,3.3,1.9,3.3,3.8c0,2.2-1.7,3.8-4.7,3.8c-1.4,0-2.7-0.3-3.5-0.9L348.6,225z"></path> </g></g></svg></div>
+
+  <div class="nav">
+    <button type="button" id="prev" aria-label="Zurück"><svg viewBox="0 0 96 36" width="54" height="20" fill="none" aria-hidden="true" focusable="false"><rect x="95.1696" y="18.6776" width="92.3104" height="2" transform="rotate(-180 95.1696 18.6776)" fill="currentColor"/><rect x="17.6777" width="2" height="25" transform="rotate(45 17.6777 0)" fill="currentColor"/><rect x="1.41425" y="16.2634" width="25" height="2" transform="rotate(45 1.41425 16.2634)" fill="currentColor"/></svg></button>
+    <button type="button" id="next" aria-label="Weiter"><svg viewBox="0 0 96 36" width="54" height="20" fill="none" aria-hidden="true" focusable="false"><rect y="16.6777" width="92.3104" height="2" fill="currentColor"/><rect x="77.4919" y="35.3553" width="2" height="25" transform="rotate(-135 77.4919 35.3553)" fill="currentColor"/><rect x="93.7554" y="19.0919" width="25" height="2" transform="rotate(-135 93.7554 19.0919)" fill="currentColor"/></svg></button>
+  </div>
+
+  <p class="fallback">Dein Browser kann WebGL gerade nicht darstellen. Bitte aktiviere Hardwarebeschleunigung oder nutze einen aktuellen Browser.</p>
+  <p class="sr-only" id="live" aria-live="polite"></p>
+</main>
+
+<script src="three.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ *
+   *  Inhalte (Platzhalter: gleiche OBJ, verschiedene Glasuren)
+   * ------------------------------------------------------------------ */
+  // Glasuren pro Slide (Reihenfolge = Reihenfolge im Slider)
+  var GLAZES = [
+    { name: 'Porzellanweiß', color: '#f3f2ee' },
+    { name: 'Salbei',        color: '#9fae95' },
+    { name: 'Terrakotta',    color: '#b8573a' },
+    { name: 'Anthrazit',     color: '#34373b' },
+    { name: 'Nachtblau',     color: '#203a63' },
+    { name: 'Sand',          color: '#cdb592' },
+    { name: 'Senfgelb',      color: '#c99a2e' },
+    { name: 'Altrosa',       color: '#d4a5a0' }
+  ];
+  var N = GLAZES.length;
+
+  /* ------------------------------------------------------------------ *
+   *  Parameter (1:1 aus der Referenz übernommen, wo sinnvoll)
+   * ------------------------------------------------------------------ */
+  var W = {
+    galleryScale: 1.08, hGap: 2.3, depthGap: 1, activeDiscY: 0.06,
+    galleryRotX: -30, galleryRotY: -30, inactiveScale: 0.8,
+    cameraDistance: 4.4, cameraFOV: 40, exposure: 0.6,
+    hoverTiltStrength: 0.21, hoverEase: 3.2, floatAmp: 1,
+    dragSensitivity: 0.95, dragVelocitySmoothing: 0.32, dragMaxVelocity: 0.5,
+    friction: 0.89, dragStartDistance: 5, snapDuration: 0.46,
+    flowLean: 0.055, flowLeanMax: 0.3, flowBank: 0.32, flowDip: 0.014, flowDipMax: 0.09,
+    followTight: 15, followBase: 11, followFalloff: 1.15, followMin: 6.5,
+    snapFreq: 9.5, snapDamping: 12,
+    wipePush: 0.007, wipePushMax: 0.3, wipeSpin: 0.005, wipeSpinMax: 0.25, wipeMinSpeed: 9,
+    pushDamping: 4.5, pushReturn: 3.4, pressDepth: 0.55, pressTilt: 1.5,
+    flightRecede: 2.2, flightStaggerIn: 0.28, flightStaggerMax: 4, flightPopScaleIn: 0.02,
+    touchSpan: 1.8, touchFlickVelocity: 0.035
+  };
+
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ------------------------------------------------------------------ *
+   *  Helfer
+   * ------------------------------------------------------------------ */
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+
+  // cubic-bezier(0.32, 0.72, 0, 1): die "discGlide"-Kurve der Referenz
+  function bezier(x1, y1, x2, y2) {
+    return function (t) {
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      var lo = 0, hi = 1, u = t;
+      for (var i = 0; i < 28; i++) {
+        var x = 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u;
+        if (Math.abs(x - t) < 1e-6) break;
+        if (x < t) lo = u; else hi = u;
+        u = (lo + hi) / 2;
+      }
+      return 3 * (1 - u) * (1 - u) * u * y1 + 3 * (1 - u) * u * u * y2 + u * u * u;
+    };
+  }
+  var glide = bezier(0.32, 0.72, 0, 1);
+  function power3out(t) { return 1 - Math.pow(1 - t, 3); }
+
+  /* ------------------------------------------------------------------ *
+   *  Teller-Modell: Rotationskörper nach dem Foto (Draufsicht)
+   *  Breite, flach ansteigende Fahne, abgesenkter runder Spiegel,
+   *  dünne Lippe am Rand, Standring auf der Unterseite.
+   *  Radius = 1, Profil als [r, y, Eckenradius].
+   * ------------------------------------------------------------------ */
+  function roundedProfile(pts) {
+    var out = [];
+    function add(x, y) { out.push(new THREE.Vector2(x, y)); }
+    add(pts[0][0], pts[0][1]);
+    for (var i = 1; i < pts.length - 1; i++) {
+      var A = pts[i - 1], P = pts[i], B = pts[i + 1], rad = P[2] || 0;
+      if (!rad) { add(P[0], P[1]); continue; }
+      var la = Math.hypot(A[0] - P[0], A[1] - P[1]), lb = Math.hypot(B[0] - P[0], B[1] - P[1]);
+      var ta = Math.min(rad, la * 0.5) / la, tb = Math.min(rad, lb * 0.5) / lb;
+      var sx = P[0] + (A[0] - P[0]) * ta, sy = P[1] + (A[1] - P[1]) * ta;
+      var ex = P[0] + (B[0] - P[0]) * tb, ey = P[1] + (B[1] - P[1]) * tb;
+      for (var k = 0; k <= 10; k++) {
+        var t = k / 10, u = 1 - t;
+        add(u * u * sx + 2 * u * t * P[0] + t * t * ex, u * u * sy + 2 * u * t * P[1] + t * t * ey);
+      }
+    }
+    add(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+    return out;
+  }
+  function buildPlateGeometry() {
+    // Reihenfolge: Unterseite von innen nach außen, Lippe, Oberseite von außen nach innen
+    var profile = roundedProfile([
+      [0.00, 0.014, 0],
+      [0.44, 0.010, 0.02],
+      [0.455, 0.000, 0.012],
+      [0.565, 0.000, 0.012],
+      [0.60, 0.014, 0.03],
+      [0.93, 0.072, 0.05],
+      [0.995, 0.098, 0.014],
+      [1.000, 0.127, 0.013],
+      [0.972, 0.131, 0.03],
+      [0.88, 0.106, 0.06],
+      [0.60, 0.086, 0.12],
+      [0.428, 0.080, 0.03],
+      [0.392, 0.044, 0.026],
+      [0.34, 0.040, 0.08],
+      [0.00, 0.040, 0]
+    ]);
+    var g = new THREE.LatheGeometry(profile, 256);
+    g.rotateX(Math.PI / 2);                    // Oberseite zur Kamera (+Z)
+    g.computeBoundingBox();
+    g.translate(0, 0, -(g.boundingBox.min.z + g.boundingBox.max.z) / 2);
+    g.computeBoundingSphere();
+    return g;
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Renderer, Szene, Kamera
+   * ------------------------------------------------------------------ */
+  var stage = document.getElementById('stage');
+  var host = document.getElementById('canvasHost');
+
+  var renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    document.documentElement.classList.add('no-webgl');
+    return;
+  }
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = W.exposure;
+  renderer.setClearColor(0x000000, 0);
+  host.appendChild(renderer.domElement);
+  var canvas = renderer.domElement;
+
+  var scene = new THREE.Scene();
+  var BG = new THREE.Color('#f2f2f2');
+  scene.fog = new THREE.Fog(BG, 7, 14);
+  var camera = new THREE.PerspectiveCamera(W.cameraFOV, 1, 0.1, 100);
+
+  var gallery = new THREE.Group();
+  gallery.rotation.x = THREE.MathUtils.degToRad(W.galleryRotX);
+  gallery.rotation.y = THREE.MathUtils.degToRad(W.galleryRotY);
+  gallery.scale.setScalar(W.galleryScale);
+  scene.add(gallery);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.1));
+  var key = new THREE.DirectionalLight(0xfff4e0, 1.4); key.position.set(-4, 6, 5); scene.add(key);
+  var fill = new THREE.DirectionalLight(0xffffff, 0.22); fill.position.set(-5, -2, 4); scene.add(fill);
+  var rim = new THREE.DirectionalLight(0x499ff5, 0.6); rim.position.set(0, 3, -6); scene.add(rim);
+
+  // Studio-Umgebung für die Glasur-Reflexe (Softboxen auf Verlauf)
+  (function makeEnv() {
+    var c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+    var x = c.getContext('2d');
+    var g = x.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, '#b9bdc4');
+    g.addColorStop(0.5, '#6f737b'); g.addColorStop(0.7, '#2e3035'); g.addColorStop(1, '#16171a');
+    x.fillStyle = g; x.fillRect(0, 0, 1024, 512);
+    x.fillStyle = '#ffffff';
+    x.fillRect(100, 40, 330, 70); x.fillRect(580, 30, 380, 80);
+    x.fillRect(0, 150, 60, 200); x.fillRect(470, 170, 70, 190);
+    x.fillStyle = '#fff1d6'; x.fillRect(250, 190, 120, 150);
+    x.fillStyle = 'rgba(150,190,255,0.9)'; x.fillRect(820, 170, 70, 190);
+    var tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    var pm = new THREE.PMREMGenerator(renderer);
+    scene.environment = pm.fromEquirectangular(tex).texture;
+    tex.dispose(); pm.dispose();
+  })();
+
+  /* ------------------------------------------------------------------ *
+   *  Teller-Instanzen (glasiertes Porzellan)
+   * ------------------------------------------------------------------ */
+  var geo = buildPlateGeometry();
+  var shadowTex = (function () {
+    var c = document.createElement('canvas'); c.width = c.height = 256;
+    var x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 20, 128, 128, 126);
+    g.addColorStop(0, 'rgba(0,0,0,0.16)'); g.addColorStop(0.6, 'rgba(0,0,0,0.06)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+    var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+  })();
+  var shadowGeo = new THREE.PlaneGeometry(2.5, 2.5);
+  var discs = [];
+  var pickables = [];
+  for (var pi = 0; pi < N; pi++) {
+    var mat = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(GLAZES[pi].color).convertSRGBToLinear(),
+      roughness: 0.06, metalness: 0,
+      clearcoat: 1, clearcoatRoughness: 0.03,
+      reflectivity: 0.55,
+      envMapIntensity: 1.0
+    });
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.userData.index = pi;
+    var spin = new THREE.Group(); spin.add(mesh);
+    var group = new THREE.Group(); group.add(spin);
+    var shadow = new THREE.Mesh(shadowGeo, new THREE.MeshBasicMaterial({
+      map: shadowTex, transparent: true, depthWrite: false, fog: false, toneMapped: false
+    }));
+    shadow.position.set(0.06, -0.1, -0.3); shadow.renderOrder = -1;
+    group.add(shadow);
+    gallery.add(group);
+    discs.push({
+      index: pi, group: group, spin: spin, mesh: mesh, phase: pi * 1.9 + 0.7,
+      bx: 0, by: 0, bz: 0, tx: 0, ty: 0, tvx: 0, tvy: 0,
+      pushX: 0, pushY: 0, pushZ: 0, pushVX: 0, pushVY: 0, pushVZ: 0,
+      pushRotX: 0, pushRotY: 0, pushRotVX: 0, pushRotVY: 0
+    });
+    pickables.push(mesh);
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Zustand
+   * ------------------------------------------------------------------ */
+  var L = 0;          // Position der Galerie als Fließkomma-Index
+  var Se = 0;         // Drag-Trägheit (Index pro 60-fps-Frame)
+  var Te = 0;         // Geschwindigkeit der Einrast-Feder
+  var Ce = 0;         // geglättete Gleitgeschwindigkeit (für Neigung)
+  var prevL = 0;
+  var tween = null;   // { from, to, t, dur, ease }
+  var pending = -1;   // Ziel, solange ein Tween läuft
+  var target = 0;
+
+  var G = { active: 0, others: 0, inbound: true };
+  var flying = !reduce;          // Intro läuft
+  var introT = 0;
+  if (reduce) { G.active = 1; G.others = 1; flying = false; }
+  var firstLayout = true;
+
+  var pointer = { x: 0, y: 0 };  // NDC der Maus über der Bühne
+  var hovered = -1;
+  var pressed = false, pressId = -1, dragging = false, isTouch = false;
+  var startX = 0, startY = 0, lastX = 0, lastY = 0, lastT = 0;
+  var moveStamp = 0, lastCX = 0, lastCY = 0, velX = 0, velY = 0;
+  var pointerMoved = false;
+  var suppressClickUntil = 0;
+  var hit = null;
+  var activeIndex = 0;
+
+  var ray = new THREE.Raycaster();
+  var ndc = new THREE.Vector2();
+  var wr = { x: 0, y: 0 };
+
+  function updateNDC(e) {
+    var r = canvas.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top;
+    ndc.x = (x / r.width) * 2 - 1;
+    ndc.y = -(y / r.height) * 2 + 1;
+    pointer.x = ndc.x; pointer.y = ndc.y;
+    return { x: x, y: y, rect: r };
+  }
+  function pick() {
+    var list = [];
+    for (var i = 0; i < discs.length; i++) if (discs[i].group.visible) list.push(discs[i].mesh);
+    ray.setFromCamera(ndc, camera);
+    var h = ray.intersectObjects(list, false)[0];
+    if (!h) { hit = null; return -1; }
+    hit = h;
+    var lp = h.object.worldToLocal(h.point.clone());
+    wr.x = clamp(lp.x, -1, 1); wr.y = clamp(lp.y, -1, 1);
+    return h.object.userData.index;
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Navigation (weiches Gleiten wie in der Referenz)
+   * ------------------------------------------------------------------ */
+  function currentTarget() {
+    if (pending >= 0) return clamp(pending, 0, N - 1);
+    if (tween) return clamp(target, 0, N - 1);
+    return clamp(Math.round(L), 0, N - 1);
+  }
+  function navParams(source, dist) {
+    var n = W.snapDuration;
+    switch (source) {
+      case 'wheel': return { duration: n + 0.05, ease: glide, kick: 2.5 };
+      case 'key':   return { duration: Math.min(0.6, n - 0.04 + dist * 0.05), ease: glide, kick: 4 };
+      case 'click': return { duration: clamp(0.45 + dist * 0.11, n, 1.05), ease: glide, kick: Math.min(5, dist * 1.4) };
+      case 'flick': return { duration: n + 0.1, ease: glide, kick: 0 };
+      default:      return { duration: n, ease: power3out, kick: 0 };
+    }
+  }
+  function goTo(idx, opts) {
+    opts = opts || {};
+    var n = clamp(idx, 0, N - 1);
+    var dist = Math.abs(n - L);
+    var p = navParams(opts.source || 'snap', dist);
+    target = n; pending = n; Se = 0; Te = 0; tween = null;
+    if (reduce) { L = n; prevL = n; Ce = 0; pending = -1; return; }
+    if (p.kick) {
+      var s = Math.sign(n - L);
+      if (s) Ce = clamp(Ce + s * p.kick, -12, 12);
+    }
+    tween = { from: L, to: n, t: 0, dur: p.duration, ease: p.ease };
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Hover: "Wipe"-Impuls beim Überfahren, Druck-Impuls beim Klick
+   * ------------------------------------------------------------------ */
+  function wipe(i) {
+    var d = discs[i];
+    if (!d || flying || reduce) return;
+    if (Math.hypot(velX, velY) < W.wipeMinSpeed) return;
+    var pn = W.wipePushMax, rn = W.wipeSpinMax;
+    d.pushVX += clamp(velX * W.wipePush, -pn, pn);
+    d.pushVY -= clamp(velY * W.wipePush, -pn, pn);
+    d.pushRotVY += clamp(velX * W.wipeSpin, -rn, rn);
+    d.pushRotVX += clamp(velY * W.wipeSpin, -rn, rn);
+  }
+  function press(i) {
+    var d = discs[i];
+    if (!d || flying || reduce) return;
+    d.pushVZ -= W.pressDepth;
+    d.pushRotVY += wr.x * W.pressTilt;
+    d.pushRotVX -= wr.y * W.pressTilt;
+  }
+  function updateCursor() {
+    if (dragging) stage.style.cursor = 'grabbing';
+    else stage.style.cursor = hovered >= 0 ? 'pointer' : 'grab';
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Zeiger: Ziehen (der Teller selbst dreht sich NICHT)
+   * ------------------------------------------------------------------ */
+  var NO_DRAG = 'a, button, input, textarea, select, [data-no-drag]';
+
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || !e.isPrimary) return;
+    if (e.target.closest && e.target.closest(NO_DRAG)) return;
+    var t = updateNDC(e);
+    pressed = true; pressId = e.pointerId; dragging = false;
+    isTouch = e.pointerType !== 'mouse';
+    startX = lastX = t.x; startY = lastY = t.y; lastT = performance.now();
+    hovered = pick();
+    pointer.x = ndc.x; pointer.y = ndc.y;
+    window.addEventListener('pointermove', onDragMove, { passive: false });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+    updateCursor();
+  });
+
+  function beginDrag(e) {
+    dragging = true;
+    tween = null; pending = -1;
+    Se = 0; Te = 0;
+    stage.style.cursor = 'grabbing';
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+
+  function onDragMove(e) {
+    if (!pressed || e.pointerId !== pressId) return;
+    var t = updateNDC(e);
+    if (!dragging) {
+      if (Math.hypot(t.x - startX, t.y - startY) < W.dragStartDistance) return;
+      beginDrag(e);
+    }
+    if (e.cancelable) e.preventDefault();
+    var now = performance.now();
+    var dx = t.x - lastX;
+    var a = Math.max(8, now - lastT);
+    lastX = t.x; lastY = t.y; lastT = now;
+    var span = isTouch ? W.touchSpan : 6 * W.dragSensitivity;
+    var step = -(dx / t.rect.width) * span;
+    L = clamp(L + step, 0, N - 1);
+    var c = clamp((16.667 / a) * step, -W.dragMaxVelocity, W.dragMaxVelocity);
+    Se += (c - Se) * W.dragVelocitySmoothing;
+    target = Math.round(L);
+  }
+
+  function endPress(cancelled) {
+    if (!pressed) return;
+    var wasDragging = dragging;
+    var id = pressId;
+    pressed = false; pressId = -1; dragging = false;
+    window.removeEventListener('pointermove', onDragMove);
+    window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onCancel);
+    try { if (stage.hasPointerCapture(id)) stage.releasePointerCapture(id); } catch (_) {}
+    updateCursor();
+    if (!wasDragging) return;
+    suppressClickUntil = performance.now() + 140;
+    if (cancelled) { Se = 0; goTo(Math.round(L)); return; }
+    if (isTouch) {
+      var dir = Math.abs(Se) >= W.touchFlickVelocity ? Math.sign(Se) : 0;
+      var idx = dir > 0 ? Math.floor(L) + 1 : dir < 0 ? Math.ceil(L) - 1 : Math.round(L);
+      Se = 0;
+      goTo(clamp(idx, 0, N - 1), { source: 'flick' });
+    }
+    // Maus: Trägheit läuft aus, danach rastet die Feder ein
+  }
+  function onUp() { endPress(false); }
+  function onCancel() { endPress(true); }
+
+  // Hover ohne gedrückte Taste
+  stage.addEventListener('pointermove', function (e) {
+    if (pressed) return;
+    updateNDC(e);
+    var now = performance.now(), dt = now - moveStamp;
+    moveStamp = now;
+    if (dt < 120) {
+      var k = 16.7 / Math.max(8, dt);
+      velX = (e.clientX - lastCX) * k; velY = (e.clientY - lastCY) * k;
+    } else { velX = 0; velY = 0; }
+    lastCX = e.clientX; lastCY = e.clientY;
+    pointerMoved = true;
+  });
+  stage.addEventListener('pointerleave', function () {
+    if (!pressed) { hovered = -1; pointerMoved = false; updateCursor(); }
+  });
+
+  stage.addEventListener('click', function (e) {
+    if (performance.now() < suppressClickUntil) { e.preventDefault(); e.stopPropagation(); return; }
+    if (e.target.closest && e.target.closest('button, a')) return;
+    updateNDC(e);
+    var idx = pick();
+    if (idx < 0) return;
+    if (idx !== activeIndex) {
+      press(idx); goTo(idx, { source: 'click' });
+    } else {
+      press(idx);
+    }
+  });
+
+  /* ------------------------------------------------------------------ *
+   *  Tastatur + Buttons
+   * ------------------------------------------------------------------ */
+  window.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey) return;
+    var t = e.target;
+    if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+    var cur = currentTarget(), to = cur;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') to = cur + 1;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') to = cur - 1;
+    else if (e.key === 'Home') to = 0;
+    else if (e.key === 'End') to = N - 1;
+    else return;
+    e.preventDefault();
+    to = clamp(to, 0, N - 1);
+    if (to !== cur) { goTo(to, { source: 'key' }); }
+  });
+  var btnPrev = document.getElementById('prev'), btnNext = document.getElementById('next');
+  btnPrev.addEventListener('click', function () { var c = currentTarget(); if (c > 0) { goTo(c - 1, { source: 'key' }); } });
+  btnNext.addEventListener('click', function () { var c = currentTarget(); if (c < N - 1) { goTo(c + 1, { source: 'key' }); } });
+
+  /* ------------------------------------------------------------------ *
+   *  Zustand der Buttons + Ansage für Screenreader
+   * ------------------------------------------------------------------ */
+  var elLive = document.getElementById('live');
+  function setPanel(i) {
+    btnPrev.disabled = i === 0; btnNext.disabled = i === N - 1;
+    elLive.textContent = 'Teller ' + (i + 1) + ' von ' + N + ', ' + GLAZES[i].name;
+  }
+  setPanel(0);
+
+  /* ------------------------------------------------------------------ *
+   *  Layout pro Frame (Positionen, Neigung, Hover-Schwenken, Impulse)
+   * ------------------------------------------------------------------ */
+  var floatT = 0;
+  function layout(dt) {
+    floatT += dt;
+    var n = clamp(Math.round(L), 0, N - 1);
+    var live = !flying && !reduce;
+    var lean = live ? clamp(Math.sign(Ce) * Math.sqrt(Math.abs(Ce)) * W.flowLean, -W.flowLeanMax, W.flowLeanMax) : 0;
+    var dip = live ? Math.min(W.flowDipMax, Math.abs(Ce) * W.flowDip) : 0;
+    var sBase = dragging ? W.followTight : W.followBase;
+    var v = Math.max(0.12, W.depthGap);
+
+    for (var p = 0; p < discs.length; p++) {
+      var d = discs[p];
+      var m = p - L, h = Math.abs(m), g = p === n, ang = m * 0.35;
+
+      var X = Math.sin(ang) * W.hGap * 2.4;
+      var Y = (g ? W.activeDiscY : 0) - dip * (g ? 0.7 : 1);
+      var Z = -Math.cos(ang) * v * 2.4 + v * 2.4;
+      var rx = 0, ry = -ang + lean * (g ? 1 : 1.12), rz = -lean * W.flowBank * (g ? 0.7 : 1);
+
+      var base = g ? 1 : Math.max(W.inactiveScale, 1 - h * (1 - W.inactiveScale) * 0.6);
+      var sc, vis = true;
+      if (g) {
+        sc = base * G.active;
+      } else {
+        var e = clamp(G.others, 0, 2);
+        var st = clamp(G.inbound ? W.flightStaggerIn : 0.45, 0, 0.9);
+        var rr = Math.max(1, Math.round(W.flightStaggerMax));
+        var off = (Math.min(h, rr) / rr) * st;
+        var span = Math.max(0.1, 1 - st);
+        var o = clamp((Math.min(1, e) - off) / span, 0, 1);
+        var s = (G.inbound ? glide(o) : o * (2 - o)) + Math.max(0, e - 1);
+        vis = s > (G.inbound ? W.flightPopScaleIn : 0.35);
+        sc = base * s;
+        var c = 1 - Math.min(1, s);
+        if (c > 1e-4) Z -= c * W.flightRecede;
+      }
+      d.group.visible = vis;
+
+      // Dauerhaftes, sehr langsames Schweben (pro Teller versetzt)
+      if (!reduce) {
+        var ph = d.phase, fa = W.floatAmp;
+        X  += Math.sin(floatT * 0.37 + ph * 1.7) * 0.02 * fa;
+        Y  += Math.sin(floatT * 0.55 + ph) * 0.035 * fa;
+        rx += Math.sin(floatT * 0.43 + ph * 2.3) * 0.035 * fa;
+        ry += Math.sin(floatT * 0.31 + ph * 0.9) * 0.045 * fa;
+        rz += Math.sin(floatT * 0.27 + ph * 1.3) * 0.025 * fa;
+      }
+
+      // Hover-Schwenken: gedämpfte Feder statt linearem Nachziehen, dadurch
+      // beginnt und endet die Neigung sanft (Ease-in-out)
+      var hv = (hovered === p && !reduce && !flying) ? 1 : 0;
+      var tgx = hv * W.hoverTiltStrength * pointer.y, tgy = hv * W.hoverTiltStrength * pointer.x;
+      var ke = W.hoverEase;
+      d.tvx += (tgx - d.tx) * ke * ke * dt; d.tvx *= Math.exp(-2 * ke * dt); d.tx += d.tvx * dt;
+      d.tvy += (tgy - d.ty) * ke * ke * dt; d.tvy *= Math.exp(-2 * ke * dt); d.ty += d.tvy * dt;
+
+      var k = clamp(sBase - h * W.followFalloff, W.followMin, W.followTight);
+      var A = (flying || firstLayout) ? 1 : Math.min(1, dt * k);
+
+      // Federnde Impulse (Wipe / Druck)
+      if (flying || reduce) {
+        d.pushX = d.pushY = d.pushZ = d.pushVX = d.pushVY = d.pushVZ = 0;
+        d.pushRotX = d.pushRotY = d.pushRotVX = d.pushRotVY = 0;
+      } else {
+        var sum = Math.abs(d.pushX) + Math.abs(d.pushY) + Math.abs(d.pushZ) +
+                  Math.abs(d.pushVX) + Math.abs(d.pushVY) + Math.abs(d.pushVZ) +
+                  Math.abs(d.pushRotX) + Math.abs(d.pushRotY) + Math.abs(d.pushRotVX) + Math.abs(d.pushRotVY);
+        if (sum > 8e-4) {
+          var damp = Math.exp(-W.pushDamping * dt), back = Math.min(1, dt * W.pushReturn);
+          d.pushX += d.pushVX * dt; d.pushVX *= damp;
+          d.pushY += d.pushVY * dt; d.pushVY *= damp;
+          d.pushZ += d.pushVZ * dt; d.pushVZ *= damp;
+          d.pushRotX += d.pushRotVX * dt; d.pushRotVX *= damp;
+          d.pushRotY += d.pushRotVY * dt; d.pushRotVY *= damp;
+          d.pushX -= d.pushX * back; d.pushY -= d.pushY * back; d.pushZ -= d.pushZ * back;
+          d.pushRotX -= d.pushRotX * back; d.pushRotY -= d.pushRotY * back;
+          X += d.pushX; Y += d.pushY; Z += d.pushZ;
+        } else if (sum > 0) {
+          d.pushX = d.pushY = d.pushZ = d.pushVX = d.pushVY = d.pushVZ = 0;
+          d.pushRotX = d.pushRotY = d.pushRotVX = d.pushRotVY = 0;
+        }
+      }
+
+      var gp = d.group;
+      gp.position.x += (X - gp.position.x) * A;
+      gp.position.y += (Y - gp.position.y) * A;
+      gp.position.z += (Z - gp.position.z) * A;
+      var cs = gp.scale.x + (sc - gp.scale.x) * A;
+      gp.scale.setScalar(Math.max(cs, 0.0001));
+      d.bx += (rx - d.bx) * A; d.by += (ry - d.by) * A; d.bz += (rz - d.bz) * A;
+      gp.rotation.x = d.bx + d.tx;
+      gp.rotation.y = d.by + d.ty;
+      gp.rotation.z = d.bz;
+
+      d.spin.rotation.x = d.pushRotX;
+      d.spin.rotation.y = d.pushRotY;
+    }
+    firstLayout = false;
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Frame-Schleife
+   * ------------------------------------------------------------------ */
+  function resize() {
+    var w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    // Hochformat: weiter zurück, damit der Teller ins Bild passt
+    var dist = Math.max(W.cameraDistance, 3.4 / camera.aspect);
+    camera.position.set(0, 0, dist);
+    camera.lookAt(0, 0, 0);
+    scene.fog.near = dist + 2.6; scene.fog.far = dist + 9.6;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    var real = (now - last) / 1000; last = now;
+    step(Math.min(0.05, Math.max(0.0001, real)));
+    renderer.render(scene, camera);
+  }
+
+  // Ein Simulationsschritt (ohne Rendern), damit sich die Bewegung exakt testen lässt
+  function step(dt) {
+    var r = Math.min(3, dt * 60);
+
+    // Intro: Teller fliegen nacheinander ein
+    if (flying) {
+      introT += dt;
+      var dur = 0.7;
+      G.active = Math.max(0.001, glide(Math.min(1, introT / dur)));
+      G.others = clamp((introT - dur * 0.1) / (dur * 0.85), 0, 1);
+      if (introT >= dur * 0.95 + 0.1) { flying = false; G.active = 1; G.others = 1; G.inbound = false; }
+    }
+
+    // Hover-Wechsel erkennen (nur wenn Maus bewegt wurde)
+    if (pointerMoved) {
+      pointerMoved = false;
+      var idx = pick();
+      if (idx !== hovered) {
+        if (idx >= 0 && !pressed) wipe(idx);
+        hovered = idx; updateCursor();
+      }
+    }
+
+    // Tween (Rad, Tasten, Klick, Flick)
+    if (tween) {
+      tween.t += dt;
+      var pr = Math.min(1, tween.t / tween.dur);
+      L = tween.from + (tween.to - tween.from) * tween.ease(pr);
+      if (pr >= 1) { L = tween.to; tween = null; pending = -1; }
+    }
+
+    // Trägheit nach dem Ziehen, danach Einrast-Feder (leichtes Nachschwingen)
+    if (!dragging) {
+      if (Math.abs(Se) > 1e-5) {
+        L += Se * r;
+        Se *= reduce ? 0 : Math.pow(W.friction, r);
+        if (Math.abs(Se) < 4e-4) Se = 0;
+      }
+      if (Se === 0 && !tween) {
+        var e = Math.round(L), t = e - L;
+        if (reduce) {
+          L += t * Math.min(1, dt * 20); Te = 0;
+          if (Math.abs(e - L) < 0.001) L = e;
+        } else if (t !== 0 || Math.abs(Te) > 1e-5) {
+          Te += t * W.snapFreq * W.snapFreq * dt;
+          Te *= Math.exp(-W.snapDamping * dt);
+          L += Te * dt;
+          if (Math.abs(e - L) < 8e-4 && Math.abs(Te) < 0.004) { L = e; Te = 0; }
+        }
+      }
+    }
+    L = clamp(L, -0.05, N - 0.95);
+
+    // Gleitgeschwindigkeit -> Neigung der Teller beim Sliden
+    if (reduce || flying) { Ce = 0; prevL = L; }
+    else {
+      var vel = clamp((L - prevL) / Math.max(dt, 0.001), -40, 40);
+      prevL = L;
+      var rate = Math.abs(vel) > Math.abs(Ce) ? 14 : 6;
+      Ce += (vel - Ce) * Math.min(1, dt * rate);
+      if (Math.abs(Ce) < 0.01) Ce = 0;
+    }
+
+    var ai = clamp(Math.round(L), 0, N - 1);
+    if (ai !== activeIndex) { activeIndex = ai; setPanel(ai); }
+
+    layout(dt);
+  }
+  requestAnimationFrame(frame);
+
+  // Zum Testen / Feintuning in der Konsole erreichbar
+  window.plateSlider = {
+    W: W, goTo: goTo, step: step, discs: discs, pointer: pointer,
+    get position() { return L; }, get lean() { return Ce; }
+  };
+})();
+</script>
+</body>
+</html>
